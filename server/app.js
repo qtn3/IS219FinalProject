@@ -111,6 +111,9 @@ app.get('/protected', (req, res) => {
 // using as middleware
 app.use('/api/v1/cities', citiesRoutes);
 
+app.set('port', process.env.PORT || 8000);
+app.set('ip', process.env.NODEJS_IP || '127.0.0.1');
+
 app.listen(port, () => {
     console.log(`Listening to requests on http://localhost:${port}`);
 });
