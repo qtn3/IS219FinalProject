@@ -96,6 +96,17 @@ app.get('/user', secured, (req, res, next) => {
     });
 });
 
+app.get('/protected', (req, res) => {
+    if (req.user) {
+        res.render('C:\\Users\\qnguy\\Desktop\\BasicWebPackESLintProfessor\\IS219FinalProject\\src\\index.html');
+    } else {
+        res.render('login', {
+            message: 'Please login to continue',
+            messageClass: 'alert-danger',
+        });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Listening to requests on http://localhost:${port}`);
 });
