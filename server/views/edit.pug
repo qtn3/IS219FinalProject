@@ -1,0 +1,22 @@
+html
+    head
+    body
+        form(action='/edit', method='POST')
+            p
+                | ID:
+                input(name='ID', value='', type='text')
+                | fldName:
+                input(name='fldName', value='', type='text')
+                |          fldLat:
+                input(name='fldLat', value='', type='text')
+                |          fldLong:
+                input(name='fldLong', value='', type='text')
+                |          fldCountry:
+                input(name='fldCountry', value='', type='text')
+                |          fldAbbreviation:
+                input(name='fldAbbreviation', value='', type='text')
+                |          fldCapitalStatus:
+                input(name='fldCapitalStatus', value='', type='text')
+                |          fldPopulation:
+                input(name='fldPopulation', value='', type='text')
+            input(value='Submit', type='submit')

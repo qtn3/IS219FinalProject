@@ -5,8 +5,7 @@ block layout-content
         h1.Banner Hello, #{userProfile.nickname}!
         div.Message
             div.Title
-                h3 Lorem Ipsum
-                h1 Teammate Profile
+                h1 #{userProfile.nickname} Profile
             pre.Details=JSON.stringify(userProfile, null, 2)
         div.NavButtons
             a(href="/logout")

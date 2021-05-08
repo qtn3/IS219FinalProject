@@ -4,7 +4,6 @@ const path = require('path');
 const expressSession = require('express-session');
 const passport = require('passport');
 const Auth0Strategy = require('passport-auth0');
-
 require('dotenv').config();
 
 const open = require('open');
@@ -96,23 +95,13 @@ app.get('/user', secured, (req, res, next) => {
         userProfile: userProfile,
     });
 });
-
-app.get('/protected', (req, res) => {
-    if (req.user) {
-        res.render('C:\\Users\\qnguy\\Desktop\\BasicWebPackESLintProfessor\\IS219FinalProject\\src\\index.html');
-    } else {
-        res.render('login', {
-            message: 'Please login to continue',
-            messageClass: 'alert-danger',
-        });
-    }
+app.get('/edit', (req, res) => {
+    res.render('edit');
 });
 
 // using as middleware
 app.use('/api/v1/cities', citiesRoutes);
-
 app.set('port', process.env.PORT || 8000);
-app.set('ip', process.env.NODEJS_IP || '127.0.0.1');
 
 app.listen(port, () => {
     console.log(`Listening to requests on http://localhost:${port}`);
