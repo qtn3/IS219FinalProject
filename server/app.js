@@ -10,6 +10,11 @@ const open = require('open');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+const jwt = require('express-jwt');
+const jwtAuthz = require('express-jwt-authz');
+const jwksRsa = require('jwks-rsa');
+
+const dbConn = require('./config/db.config');
 const authRouter = require('./auth');
 const citiesRoutes = require('./routes/cities.routes');
 
@@ -53,6 +58,7 @@ app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(expressSession(session));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 passport.use(strategy);
 app.use(passport.initialize());
@@ -95,8 +101,15 @@ app.get('/user', secured, (req, res, next) => {
         userProfile: userProfile,
     });
 });
-app.get('/edit', (req, res) => {
-    res.render('edit');
+app.post('/api/edit', (req, res) => {
+    dbConn.run('DELETE FROM tblCitiesImport WHERE id = ?', [req.body.id], (err, res) => {
+        if (err) {
+            console.log('error: ', err);
+        } else {
+            console.log('Record is Deleted ');
+        }
+    });
+    res.json(req.body);
 });
 
 // using as middleware
