@@ -13,7 +13,7 @@ const cors = require('cors');
 const jwt = require('express-jwt');
 const jwtAuthz = require('express-jwt-authz');
 const jwksRsa = require('jwks-rsa');
-
+const apiRouter = require('./routes/api');
 const dbConn = require('./config/db.config');
 const authRouter = require('./auth');
 const citiesRoutes = require('./routes/cities.routes');
@@ -89,17 +89,18 @@ const checkJwt = jwt({
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
-        jwksUri: `https://dev-wxuhoh54.us.auth0.com/.well-known/jwks.json`
+        jwksUri: 'https://dev-wxuhoh54.us.auth0.com/.well-known/jwks.json'
     }),
 
     // Validate the audience and the issuer.
     audience: 'http://localhost:3000/api/v1/cities',
-    issuer: [`https://dev-wxuhoh54.us.auth0.com/`],
+    issuer: ['https://dev-wxuhoh54.us.auth0.com/'],
     algorithms: ['RS256'],
 });
 
 // Router Mounting
 app.use('/', authRouter);
+app.use('/api', apiRouter);
 
 // Routes Definitions
 const secured = (req, res, next) => {
@@ -125,26 +126,15 @@ app.get('/user', secured, (req, res, next) => {
 // This route is not needed authentication
 app.get('/api/public', (req, res) => {
     res.json({
-        message: 'Hello from a public endpoint! Authentication is not needed to see this.',
+        message: 'You are in the public endpoint! Authentication is not needed to see this.',
     });
 });
 
 // This route is needed authentication
 app.get('/api/private', checkJwt, (req, res) => {
     res.json({
-        message: 'Hello from a private endpoint! Authentication is needed to see this.',
+        message: 'You are in the private endpoint! Authentication is needed to see this.',
     });
-});
-
-app.post('/api/edit', (req, res) => {
-    dbConn.run('DELETE FROM tblCitiesImport WHERE id = ?', [req.body.id], (err, res) => {
-        if (err) {
-            console.log('error: ', err);
-        } else {
-            console.log('Record is Deleted ');
-        }
-    });
-    res.json(req.body);
 });
 
 // using as middleware

@@ -8,5 +8,7 @@ block layout-content
                 h1 #{userProfile.nickname} Profile
             pre.Details=JSON.stringify(userProfile, null, 2)
         div.NavButtons
+            a(href="http://localhost:3000/")
+                div.NavButton Homepage
             a(href="/logout")
                 div.NavButton Log out
