@@ -13,6 +13,7 @@ const cors = require('cors');
 const jwt = require('express-jwt');
 const jwtAuthz = require('express-jwt-authz');
 const jwksRsa = require('jwks-rsa');
+const connection = require('./config/db.config');
 const apiRouter = require('./routes/api');
 const dbConn = require('./config/db.config');
 const authRouter = require('./auth');
