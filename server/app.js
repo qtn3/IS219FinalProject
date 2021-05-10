@@ -4,18 +4,17 @@ const path = require('path');
 const expressSession = require('express-session');
 const passport = require('passport');
 const Auth0Strategy = require('passport-auth0');
+
+const accessTokenSecret = 'youraccesstokensecret';
+
 require('dotenv').config();
 
 const open = require('open');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const jwt = require('express-jwt');
-const jwtAuthz = require('express-jwt-authz');
-const jwksRsa = require('jwks-rsa');
-const connection = require('./config/db.config');
+const jwt = require('jsonwebtoken');
 const apiRouter = require('./routes/api');
-const dbConn = require('./config/db.config');
 const authRouter = require('./auth');
 const citiesRoutes = require('./routes/cities.routes');
 
@@ -56,6 +55,7 @@ const strategy = new Auth0Strategy(
 // App Configuration
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(expressSession(session));
@@ -76,27 +76,17 @@ passport.deserializeUser((user, done) => {
 // Creating custom middleware with Express
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.isAuthenticated();
+    if (req.user) {
+        if (typeof (res._headers.authorization) === "undefined") {
+            const accessToken = jwt.sign(req.user._json, accessTokenSecret, {expiresIn: '20m'});
+            res.setHeader('Authorization', 'Bearer ' + accessToken);
+        }
+    }else if (!req.user){
+        try {
+            res.setHeader('Authorization', ' ');
+        }catch{}
+    }
     next();
-});
-
-// Authorization middleware. When used, the
-// Access Token must exist and be verified against
-// the Auth0 JSON Web Key Set
-const checkJwt = jwt({
-    // Dynamically provide a signing key
-    // based on the kid in the header and
-    // the signing keys provided by the JWKS endpoint.
-    secret: jwksRsa.expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: 'https://dev-wxuhoh54.us.auth0.com/.well-known/jwks.json'
-    }),
-
-    // Validate the audience and the issuer.
-    audience: 'http://localhost:3000/api/v1/cities',
-    issuer: ['https://dev-wxuhoh54.us.auth0.com/'],
-    algorithms: ['RS256'],
 });
 
 // Router Mounting
@@ -110,6 +100,30 @@ const secured = (req, res, next) => {
     }
     req.session.returnTo = req.originalUrl;
     res.redirect('/login');
+};
+
+const authenticateJWT = (req, res, next) => {
+    console.log("authenticating");
+    if (req.user) {
+        const authHeader = res._headers.authorization;
+        console.log(authHeader);
+        if (authHeader) {
+            const token = authHeader.split(' ')[1];
+            jwt.verify(token, accessTokenSecret, (err, user) => {
+                if (err) {
+                    return res.sendStatus(403);
+                }
+                req.user = user;
+                next();
+            });
+        } else {
+            res.sendStatus(401);
+        }
+    } else {
+        console.log("Failed to validate token!");
+        req.session.returnTo = req.originalUrl;
+        res.redirect("/login");
+    }
 };
 
 app.get('/', (req, res) => {
@@ -126,16 +140,12 @@ app.get('/user', secured, (req, res, next) => {
 
 // This route is not needed authentication
 app.get('/api/public', (req, res) => {
-    res.json({
-        message: 'You are in the public endpoint! Authentication is not needed to see this.',
-    });
+    res.redirect('http://localhost:8000');
 });
 
 // This route is needed authentication
-app.get('/api/private', checkJwt, (req, res) => {
-    res.json({
-        message: 'You are in the private endpoint! Authentication is needed to see this.',
-    });
+app.get('/api/private', (req, res) => {
+    res.redirect('http://localhost:8000');
 });
 
 // using as middleware
