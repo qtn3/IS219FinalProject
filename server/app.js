@@ -160,11 +160,11 @@ app.get('/db', authenticateJWT, (req, res, next) => {
     });
 });
 
-app.get('/form', (req, res) => {
+app.get('/form', authenticateJWT, (req, res) => {
     res.render("form", { title: "Search" });
 });
 
-app.post('/results', (req, res, next) => {
+app.post('/results', authenticateJWT, (req, res, next) => {
     const query = req.body.query;
     let result = [];
 
