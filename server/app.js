@@ -15,6 +15,7 @@ const cors = require('cors');
 
 const jwt = require('jsonwebtoken');
 const apiRouter = require('./routes/api');
+const request = require('request');
 const authRouter = require('./auth');
 const citiesRoutes = require('./routes/cities.routes');
 
@@ -139,13 +140,14 @@ app.get('/user', authenticateJWT, (req, res, next) => {
 });
 
 // This route is not needed authentication
-app.get('/api/public', (req, res) => {
-    res.redirect('http://localhost:8000');
-});
-
-// This route is needed authentication
-app.get('/api/private', (req, res) => {
-    res.redirect('http://localhost:8000');
+app.get('/db', authenticateJWT, (req, res, next) => {
+    request("http://localhost:8000/api/v1/cities", (err, response, body) => {
+        if (err || response.statusCode !== 200) {
+            return res.sendStatus(500);
+        }
+        res.render('db', { title : 'Main page', citiesjson : JSON.parse(body).data });
+        next();
+    });
 });
 
 // using as middleware
