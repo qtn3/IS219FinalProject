@@ -1,0 +1,32 @@
+extends layout
+block layout-content
+    div.View.UserView
+        div.Message
+            div.Title
+                h1 The City Database
+            //pre.Details=JSON.stringify(citiesjson, null, 2)
+            table.table.table-striped
+                thead
+                tr
+                    th ID
+                    th Name
+                    th Latitude
+                    th Longitude
+                    th Country
+                    th Abbreviation
+                    th Capital Status
+                    th Population
+                tbody
+                each n in citiesjson
+                    tr
+                        td= n.id
+                        td= n.fldName
+                        td= n.fldLat
+                        td= n.fldLong
+                        td= n.fldCountry
+                        td= n.fldAbbreviation
+                        td= n.fldCapitalStatus
+                        td= n.fldPopulation
+        div.NavButtons
+            a(href="/logout")
+                div.NavButton Log out
