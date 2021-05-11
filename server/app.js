@@ -14,8 +14,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const jwt = require('jsonwebtoken');
-const apiRouter = require('./routes/api');
 const request = require('request');
+const mysql = require('mysql');
 const authRouter = require('./auth');
 const citiesRoutes = require('./routes/cities.routes');
 
@@ -34,6 +34,16 @@ const session = {
 if (app.get('env') === 'production') {
     // Serve secure cookies, requires HTTPS
     session.cookie.secure = true;
+}
+
+function getMySQLConnection() {
+    return mysql.createConnection({
+        host     : 'localhost',
+        user     : 'root',
+        password : 'root',
+        port     : '32000',
+        database : 'citiesData'
+    });
 }
 
 // Passport Configuration
@@ -92,7 +102,7 @@ app.use((req, res, next) => {
 
 // Router Mounting
 app.use('/', authRouter);
-app.use('/api', apiRouter);
+app.use('/api/private', citiesRoutes)
 
 // Routes Definitions
 const secured = (req, res, next) => {
@@ -149,6 +159,49 @@ app.get('/db', authenticateJWT, (req, res, next) => {
         next();
     });
 });
+
+app.get('/form', (req, res) => {
+    res.render("form", { title: "Search" });
+});
+
+app.post('/results', (req, res, next) => {
+    const query = req.body.query;
+    let result = [];
+
+    var connection = getMySQLConnection();
+    connection.connect();
+
+    connection.query(query.toString(), function(err, rows, fields) {
+        if (err) {
+            res.status(500).json({"status_code": 500,"status_message": "internal server error"});
+        } else {
+            // Loop check on each row
+            for (var i = 0; i < rows.length; i++) {
+
+                // Create an object to save current row's data
+                var city = {
+                    'id': rows[i].id,
+                    'name': rows[i].fldName,
+                    'latitude': rows[i].fldLat,
+                    'longitude': rows[i].fldLong,
+                    'country': rows[i].fldCountry,
+                    'abbreviation': rows[i].fldAbbreviation,
+                    'capitalstatus': rows[i].fldCapitalStatus,
+                    'population': rows[i].fldPopulation,
+                };
+                // Add object into array
+                result.push(city);
+            }
+
+            // Render index.pug page using array
+            res.render('results', { title: "City Results", "result": result });
+        }
+    });
+
+    connection.end();
+
+});
+
 
 // using as middleware
 app.use('/api/v1/cities', citiesRoutes);
