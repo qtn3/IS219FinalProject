@@ -1,0 +1,36 @@
+extends layout
+block layout-content
+    div.View.UserView
+        div.Message
+            div.Title
+                h1 The Results of Search
+            table.table.table-striped
+                thead
+                tr
+                    th ID
+                    th Name
+                    th Latitude
+                    th Longitude
+                    th Country
+                    th Abbreviation
+                    th Capital Status
+                    th Population
+                tbody
+                for n in result
+                    tr
+                        td= n.id
+                        td
+                            a(href='/person/'+n.id) #{n.name}
+                        td= n.latitude
+                        td= n.longitude
+                        td= n.country
+                        td= n.abbreviation
+                        td= n.capitalstatus
+                        td= n.population
+        div.NavButtons
+            a(href="http://localhost:3000/")
+                div.NavButton Homepage
+            a(href="/db")
+                div.NavButton View Records
+            a(href="/logout")
+                div.NavButton Log out

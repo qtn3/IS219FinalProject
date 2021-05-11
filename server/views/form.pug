@@ -1,0 +1,21 @@
+extends layout
+
+block layout-content
+    div.View.UserView
+        h1.Banner Search Cities Database
+
+        div
+            br
+        div.Message.center.box
+            form(method='POST' action='/results')
+                label(for='query') Enter the query
+                br
+                input(type='text' id='query' name='query')
+                button(type="submit") Submit
+        div
+            br
+        div.NavButtons
+            a(href="http://localhost:3000/")
+                div.NavButton Homepage
+            a(href="/logout")
+                div.NavButton Log out

@@ -112,6 +112,31 @@ a {
     color: #2a3747;
 }
 
+.box{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.box input{
+    width: 340px;
+    height: 29px;
+    border: 2px solid black;
+    margin: 4px;
+}
+
+.box label{
+    font-weight: bold;
+}
+
+.box button{
+    border: 2px solid black;
+    width: 102px;
+    height: 29px;
+    font-weight: bold;
+    background-color: lightblue;
+    color: #055C9D;
+}
+
 table, th, td {
     border: 4px solid black;
     border-collapse: collapse;
